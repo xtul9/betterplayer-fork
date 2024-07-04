@@ -5,10 +5,12 @@ package com.jhomlala.better_player
 
 import android.app.Activity
 import android.app.AppOpsManager
+import android.app.Application
 import android.app.PictureInPictureParams
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -29,7 +31,8 @@ import io.flutter.view.TextureRegistry
 /**
  * Android platform implementation of the VideoPlayerPlugin.
  */
-class BetterPlayerPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
+class BetterPlayerPlugin : FlutterPlugin, ActivityAware, MethodCallHandler,
+    Application.ActivityLifecycleCallbacks {
     private val videoPlayers = LongSparseArray<BetterPlayer>()
     private val dataSources = LongSparseArray<Map<String, Any?>>()
     private var flutterState: FlutterState? = null
@@ -73,13 +76,19 @@ class BetterPlayerPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         activity = binding.activity
+        activity?.registerActivityLifecycleCallbacks(this)
+
     }
 
     override fun onDetachedFromActivityForConfigChanges() {}
 
     override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {}
 
-    override fun onDetachedFromActivity() {}
+    override fun onDetachedFromActivity() {
+        activity?.unregisterActivityLifecycleCallbacks( this)
+
+    }
+
 
     private fun disposeAllPlayers() {
         for (i in 0 until videoPlayers.size()) {
@@ -494,6 +503,46 @@ class BetterPlayerPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
         }
 
     }
+
+    override fun onActivityCreated(p0: Activity, p1: Bundle?) {
+
+    }
+    override fun onActivityStarted(p0: Activity) {
+
+    }
+
+    override fun onActivityResumed(p0: Activity) {
+
+
+    }
+
+    override fun onActivityPaused(p0: Activity) {
+
+    }
+
+    override fun onActivityPrePaused(activity: Activity) {
+        if(videoPlayers != null) {
+            if (videoPlayers[currentNotificationTextureId].isPlayOnPlayer()) {
+                enablePictureInPicture(videoPlayers[currentNotificationTextureId])
+            }
+        }
+        super.onActivityPrePaused(activity)
+
+
+    }
+    override fun onActivityStopped(p0: Activity) {
+
+    }
+
+    override fun onActivitySaveInstanceState(p0: Activity, p1: Bundle) {
+    }
+
+    override fun onActivityDestroyed(p0: Activity) {
+    }
+
+
+
+
 
     companion object {
         private const val TAG = "BetterPlayerPlugin"
