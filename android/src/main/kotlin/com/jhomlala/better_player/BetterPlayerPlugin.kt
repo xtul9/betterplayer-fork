@@ -102,7 +102,8 @@ class BetterPlayerPlugin : FlutterPlugin, ActivityAware, MethodCallHandler,
             result.error("no_activity", "better_player plugin requires a foreground activity", null)
             return
         }
-        lastKnownTextureId = (call.argument<Any>(TEXTURE_ID_PARAMETER) as Number?)?.toLong()
+        if (call.hasArgument(TEXTURE_ID_PARAMETER))
+            lastKnownTextureId = (call.argument<Any>(TEXTURE_ID_PARAMETER) as Number?)?.toLong()
         when (call.method) {
             INIT_METHOD -> disposeAllPlayers()
             CREATE_METHOD -> {
