@@ -659,15 +659,7 @@ internal class BetterPlayer(
         mediaSession = null
     }
 
-    fun isPlayOnPlayer():Boolean {
-        var isPlaying: Boolean = false
-
-        if(exoPlayer != null){
-            isPlaying = exoPlayer?.playbackState == Player.STATE_READY
-        }
-
-        return isPlaying
-    }
+    fun isPlayOnPlayer():Boolean = exoPlayer?.playbackState == Player.STATE_READY
 
     fun setAudioTrack(name: String, index: Int) {
         try {
