@@ -239,10 +239,24 @@ class _BetterPlayerState extends State<BetterPlayer>
       }
       await SystemChrome.setPreferredOrientations(deviceOrientations);
     } else {
-      await SystemChrome.setPreferredOrientations(
-        widget.controller.betterPlayerConfiguration
-            .deviceOrientationsOnFullScreen,
-      );
+      if (widget.controller.wasInPipMode) {
+        if (widget.controller.isFullScreen) {
+          await SystemChrome.setPreferredOrientations(
+            widget.controller.betterPlayerConfiguration
+                .deviceOrientationsAfterFullScreen,
+          );
+        } else {
+          await SystemChrome.setPreferredOrientations(
+            widget.controller.betterPlayerConfiguration
+                .deviceOrientationsOnFullScreen,
+          );
+        }
+      } else {
+        await SystemChrome.setPreferredOrientations(
+          widget.controller.betterPlayerConfiguration
+              .deviceOrientationsOnFullScreen,
+        );
+      }
     }
 
     await Navigator.of(context, rootNavigator: true).push(route);
@@ -266,13 +280,20 @@ class _BetterPlayerState extends State<BetterPlayer>
     );
   }
 
+  bool isInInactiveState = false;
+
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.inactive) {
       if (!widget.controller.isFullScreen &&
           widget.controller.videoPlayerController!.value.isPip) {
         widget.controller.enterFullScreen();
+      } else if (widget.controller.wasInPipMode) {
+        await SystemChrome.setPreferredOrientations(
+          widget.controller.betterPlayerConfiguration
+              .deviceOrientationsAfterFullScreen,
+        );
       }
     }
     widget.controller.setAppLifecycleState(state);

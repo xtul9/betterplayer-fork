@@ -172,6 +172,8 @@ class BetterPlayerController {
   ///Was Picture in Picture opened.
   bool _wasInPipMode = false;
 
+  bool get wasInPipMode => _wasInPipMode;
+
   ///Was player in fullscreen before Picture in Picture opened.
   bool _wasInFullScreenBeforePiP = false;
 
@@ -993,18 +995,20 @@ class BetterPlayerController {
     if (videoPlayerController == null) {
       throw StateError("The data source has not been initialized");
     }
-    _postEvent(BetterPlayerEvent(BetterPlayerEventType.changedTrack, parameters: <String, dynamic>{
-      "id": track.id,
-      "width": track.width,
-      "height": track.height,
-      "bitrate": track.bitrate,
-      "frameRate": track.frameRate,
-      "codecs": track.codecs,
-      "mimeType": track.mimeType,
-    }));
+    _postEvent(BetterPlayerEvent(BetterPlayerEventType.changedTrack,
+        parameters: <String, dynamic>{
+          "id": track.id,
+          "width": track.width,
+          "height": track.height,
+          "bitrate": track.bitrate,
+          "frameRate": track.frameRate,
+          "codecs": track.codecs,
+          "mimeType": track.mimeType,
+        }));
 
     try {
-      videoPlayerController!.setTrackParameters(track.width, track.height, track.bitrate);
+      videoPlayerController!
+          .setTrackParameters(track.width, track.height, track.bitrate);
       _betterPlayerAsmsTrack = track;
     } on PlatformException catch (e) {
       BetterPlayerUtils.log(e.toString());
