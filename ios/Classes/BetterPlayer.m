@@ -88,24 +88,28 @@ AVPictureInPictureController *_pipController;
 }
 
 - (void) removeObservers{
-    if (self._observersAdded){
-        [_player removeObserver:self forKeyPath:@"rate" context:nil];
-        [[_player currentItem] removeObserver:self forKeyPath:@"status" context:statusContext];
-        [[_player currentItem] removeObserver:self forKeyPath:@"presentationSize" context:presentationSizeContext];
-        [[_player currentItem] removeObserver:self
-                                   forKeyPath:@"loadedTimeRanges"
-                                      context:timeRangeContext];
-        [[_player currentItem] removeObserver:self
-                                   forKeyPath:@"playbackLikelyToKeepUp"
-                                      context:playbackLikelyToKeepUpContext];
-        [[_player currentItem] removeObserver:self
-                                   forKeyPath:@"playbackBufferEmpty"
-                                      context:playbackBufferEmptyContext];
-        [[_player currentItem] removeObserver:self
-                                   forKeyPath:@"playbackBufferFull"
-                                      context:playbackBufferFullContext];
-        [[NSNotificationCenter defaultCenter] removeObserver:self];
-        self._observersAdded = false;
+    @try {
+        if (self._observersAdded){
+            [_player removeObserver:self forKeyPath:@"rate" context:nil];
+            [[_player currentItem] removeObserver:self forKeyPath:@"status" context:statusContext];
+            [[_player currentItem] removeObserver:self forKeyPath:@"presentationSize" context:presentationSizeContext];
+            [[_player currentItem] removeObserver:self
+                                       forKeyPath:@"loadedTimeRanges"
+                                          context:timeRangeContext];
+            [[_player currentItem] removeObserver:self
+                                       forKeyPath:@"playbackLikelyToKeepUp"
+                                          context:playbackLikelyToKeepUpContext];
+            [[_player currentItem] removeObserver:self
+                                       forKeyPath:@"playbackBufferEmpty"
+                                          context:playbackBufferEmptyContext];
+            [[_player currentItem] removeObserver:self
+                                       forKeyPath:@"playbackBufferFull"
+                                          context:playbackBufferFullContext];
+            [[NSNotificationCenter defaultCenter] removeObserver:self];
+            self._observersAdded = false;
+        }
+    } @catch (NSException *exception) {
+        NSLog(@"Exception occurred while removing observers: %@", exception);
     }
 }
 
