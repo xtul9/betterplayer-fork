@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:better_player/src/configuration/better_player_buffering_configuration.dart';
 import 'package:better_player/src/core/better_player_utils.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -15,6 +16,12 @@ const MethodChannel _channel = MethodChannel('better_player_channel');
 
 /// An implementation of [VideoPlayerPlatform] that uses method channels.
 class MethodChannelVideoPlayer extends VideoPlayerPlatform {
+  /// Minimum valid milliseconds since epoch
+  static int _minMillisecondsSinceEpoch = -8640000000000000;
+
+  /// Maximum valid milliseconds since epoch
+  static int _maxMillisecondsSinceEpoch = 8640000000000000;
+
   @override
   Future<void> init() {
     return _channel.invokeMethod<void>('init');
@@ -217,13 +224,13 @@ class MethodChannelVideoPlayer extends VideoPlayerPlatform {
     try {
       final int milliseconds = await _channel.invokeMethod<int>(
             'absolutePosition',
-          <String, dynamic>{'textureId': textureId},
-        ) ??
-        0;
+            <String, dynamic>{'textureId': textureId},
+          ) ??
+          0;
 
-    if (milliseconds <= 0) return null;
+      if (milliseconds <= 0) return null;
 
-      return DateTime.fromMillisecondsSinceEpoch(milliseconds);
+      return _safeFromMillisecondsSinceEpoch(milliseconds);
     } catch (e) {
       // in case type parsing error
       return null;
@@ -449,5 +456,15 @@ class MethodChannelVideoPlayer extends VideoPlayerPlatform {
       Duration(milliseconds: pair[0] as int),
       Duration(milliseconds: pair[1] as int),
     );
+  }
+
+  DateTime _safeFromMillisecondsSinceEpoch(int milliseconds) {
+    if (milliseconds < _minMillisecondsSinceEpoch) {
+      milliseconds = _minMillisecondsSinceEpoch;
+    } else if (milliseconds > _maxMillisecondsSinceEpoch) {
+      milliseconds = _maxMillisecondsSinceEpoch;
+    }
+
+    return DateTime.fromMillisecondsSinceEpoch(milliseconds);
   }
 }
