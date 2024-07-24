@@ -659,8 +659,6 @@ internal class BetterPlayer(
         mediaSession = null
     }
 
-    fun isPlayOnPlayer():Boolean = exoPlayer?.playbackState == Player.STATE_READY
-
     fun setAudioTrack(name: String, index: Int) {
         try {
             val mappedTrackInfo = trackSelector.currentMappedTrackInfo
