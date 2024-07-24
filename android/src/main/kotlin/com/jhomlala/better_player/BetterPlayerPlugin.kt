@@ -539,11 +539,9 @@ class BetterPlayerPlugin : FlutterPlugin, ActivityAware, MethodCallHandler,
     }
 
     override fun onActivityPrePaused(activity: Activity) {
-        if (pipRunnable == null) {
-            lastKnownTextureId?.let { texture -> videoPlayers[texture] }
-                ?.takeIf { player -> player.isPlayOnPlayer() }
-                ?.let { player -> enablePictureInPicture(player) }
-        }
+        lastKnownTextureId?.let { texture -> videoPlayers[texture] }
+            ?.takeIf { player -> player.isPlayOnPlayer() }
+            ?.let { player -> enablePictureInPicture(player) }
         super.onActivityPrePaused(activity)
     }
 
