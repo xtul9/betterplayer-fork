@@ -198,8 +198,8 @@ class _BetterPlayerMaterialControlsState
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    if (_controlsConfiguration.showExitButton)
-                      _buildExitButton(),
+                    if (_betterPlayerController!.isFullScreen)
+                      _buildCloseFullScreenArrow(),
                     const Spacer(),
                     if (_controlsConfiguration.enablePip)
                       _buildPipButtonWrapperWidget(
@@ -207,6 +207,8 @@ class _BetterPlayerMaterialControlsState
                     else
                       const SizedBox(),
                     _buildMoreButton(),
+                    if (_controlsConfiguration.showExitButton)
+                      _buildExitButton(),
                   ],
                 ),
               ),
@@ -807,12 +809,25 @@ class _BetterPlayerMaterialControlsState
   Widget _buildExitButton() => GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () {
-          _betterPlayerController!
-              .postEvent(BetterPlayerEvent(BetterPlayerEventType.close));
+          if (!_betterPlayerController!.isFullScreen) {
+            Navigator.of(context).pop();
+          } else {
+            _betterPlayerController!
+                .postEvent(BetterPlayerEvent(BetterPlayerEventType.close));
+          }
         },
         child: Padding(
-          padding: EdgeInsets.only(left: 16.0, top: 8.0, bottom: 8.0),
+          padding: EdgeInsets.only(right: 16.0, top: 8.0, bottom: 8.0),
           child: Center(child: Icon(_controlsConfiguration.exitIcon)),
+        ),
+      );
+
+  Widget _buildCloseFullScreenArrow() => GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => _betterPlayerController!.exitFullScreen(),
+        child: Padding(
+          padding: EdgeInsets.only(left: 24.0, top: 8.0, bottom: 8.0),
+          child: Center(child: Icon(Icons.arrow_back)),
         ),
       );
 }
