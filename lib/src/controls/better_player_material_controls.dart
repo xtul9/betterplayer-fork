@@ -809,12 +809,8 @@ class _BetterPlayerMaterialControlsState
   Widget _buildExitButton() => GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () {
-          if (!_betterPlayerController!.isFullScreen) {
-            Navigator.of(context).pop();
-          } else {
-            _betterPlayerController!
-                .postEvent(BetterPlayerEvent(BetterPlayerEventType.close));
-          }
+          _betterPlayerController!
+              .postEvent(BetterPlayerEvent(BetterPlayerEventType.close));
         },
         child: Padding(
           padding: EdgeInsets.only(right: 16.0, top: 8.0, bottom: 8.0),
