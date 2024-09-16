@@ -173,6 +173,10 @@ class BetterPlayerController {
 
   bool get wasInPipMode => _wasInPipMode;
 
+  bool _isPip = false;
+
+  bool get isPip => _isPip;
+
   ///Was player in fullscreen before Picture in Picture opened.
   bool _wasInFullScreenBeforePiP = false;
 
@@ -838,8 +842,10 @@ class BetterPlayerController {
       _postEvent(BetterPlayerEvent(BetterPlayerEventType.initialized));
     }
     if (currentVideoPlayerValue.isPip) {
+      _isPip = true;
       _wasInPipMode = true;
     } else if (_wasInPipMode) {
+      _isPip = false;
       _postEvent(BetterPlayerEvent(BetterPlayerEventType.pipStop));
       _wasInPipMode = false;
       if (!_wasInFullScreenBeforePiP) {
@@ -1183,7 +1189,8 @@ class BetterPlayerController {
         !(videoPlayerController?.value.hasError ?? true);
 
     if (isPipSupported && canEnablePictureInPicture) {
-      if (isFullScreen) exitFullScreen();
+      _isPip = true;
+      exitFullScreen();
       _wasInFullScreenBeforePiP = _isFullScreen;
       _wasControlsEnabledBeforePiP = _controlsEnabled;
       setControlsEnabled(false);
@@ -1191,6 +1198,7 @@ class BetterPlayerController {
         _wasInFullScreenBeforePiP = _isFullScreen;
         await videoPlayerController?.enablePictureInPicture(
             left: 0, top: 0, width: 0, height: 0);
+
         enterFullScreen();
         _postEvent(BetterPlayerEvent(BetterPlayerEventType.pipStart));
         return;
@@ -1205,7 +1213,8 @@ class BetterPlayerController {
           return;
         }
         final Offset position = renderBox.localToGlobal(Offset.zero);
-        return videoPlayerController?.enablePictureInPicture(
+
+        await videoPlayerController?.enablePictureInPicture(
           left: position.dx,
           top: position.dy,
           width: renderBox.size.width,
@@ -1227,6 +1236,8 @@ class BetterPlayerController {
     if (videoPlayerController == null) {
       throw StateError("The data source has not been initialized");
     }
+    _isPip = false;
+    _postEvent(BetterPlayerEvent(BetterPlayerEventType.pipStop));
     return videoPlayerController!.disablePictureInPicture();
   }
 
@@ -1380,7 +1391,7 @@ class BetterPlayerController {
   ///cache started for given [betterPlayerDataSource] then it will be ignored.
   Future<void> stopPreCache(
       BetterPlayerDataSource betterPlayerDataSource) async {
-    return VideoPlayerController?.stopPreCache(betterPlayerDataSource.url,
+    return VideoPlayerController.stopPreCache(betterPlayerDataSource.url,
         betterPlayerDataSource.cacheConfiguration?.key);
   }
 
