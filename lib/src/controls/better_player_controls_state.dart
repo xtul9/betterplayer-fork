@@ -416,7 +416,7 @@ abstract class BetterPlayerControlsState<T extends StatefulWidget> extends State
                 )),
             const SizedBox(width: 16),
             Text(
-              audioTrack.label!,
+              audioTrack.getDisplayName(),
               style: _getOverflowMenuElementTextStyle(isSelected),
             ),
           ],
