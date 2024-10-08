@@ -1052,7 +1052,7 @@ class BetterPlayerController {
           pause();
         } else {
           if (_wasPlayingBeforePause == true && !isPlaying()!) {
-            play();
+            play(seekToLive: isLiveStream());
           }
         }
       }
