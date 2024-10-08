@@ -39,6 +39,14 @@ class _BetterPlayerMaterialControlsState
   Timer? _showAfterExpandCollapseTimer;
   bool _displayTapped = false;
   bool _wasLoading = false;
+
+  set wasLoading(bool value) {
+    if (_wasLoading != value) {
+      _wasLoading = value;
+      print('wasLoading changed to: $_wasLoading');
+    }
+  }
+
   VideoPlayerController? _controller;
   BetterPlayerController? _betterPlayerController;
   StreamSubscription? _controlsVisibilityStreamSubscription;
@@ -63,7 +71,7 @@ class _BetterPlayerMaterialControlsState
 
   ///Builds main widget of the controls.
   Widget _buildMainWidget() {
-    _wasLoading = isLoading(_latestValue);
+    wasLoading = isLoading(_latestValue);
     if (_latestValue?.hasError == true) {
       return Container(
         color: Colors.black,

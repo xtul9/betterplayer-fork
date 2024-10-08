@@ -2,10 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:better_player/better_player.dart';
-import 'package:better_player/src/configuration/better_player_airplay_configuration.dart';
 import 'package:better_player/src/configuration/better_player_controller_event.dart';
-import 'package:better_player/src/configuration/better_player_play_next_video_configuration.dart';
-import 'package:better_player/src/configuration/better_player_skip_intro_configuration.dart';
 import 'package:better_player/src/core/better_player_utils.dart';
 import 'package:better_player/src/subtitles/better_player_subtitle.dart';
 import 'package:better_player/src/subtitles/better_player_subtitles_factory.dart';
@@ -153,6 +150,8 @@ class BetterPlayerController {
 
   ///Current app lifecycle state.
   AppLifecycleState _appLifecycleState = AppLifecycleState.resumed;
+
+  AppLifecycleState get appLifecycleState => _appLifecycleState;
 
   ///Flag which determines if controls (UI interface) is shown. When false,
   ///UI won't be shown (show only player surface).
@@ -582,8 +581,7 @@ class BetterPlayerController {
         enterFullScreen();
       }
       if (_isAutomaticPlayPauseHandled()) {
-        if (_appLifecycleState == AppLifecycleState.resumed &&
-            _isPlayerVisible) {
+        if (_appLifecycleState == AppLifecycleState.resumed && _isPlayerVisible) {
           await play();
         } else {
           _wasPlayingBeforePause = true;
@@ -637,7 +635,7 @@ class BetterPlayerController {
 
   ///Start video playback. Play will be triggered only if current lifecycle state
   ///is resumed.
-  Future<void> play() async {
+  Future<void> play({bool seekToLive = false}) async {
     if (videoPlayerController == null) {
       throw StateError("The data source has not been initialized");
     }
@@ -648,6 +646,8 @@ class BetterPlayerController {
       _wasPlayingBeforePause = null;
       _postEvent(BetterPlayerEvent(BetterPlayerEventType.play));
       _postControllerEvent(BetterPlayerControllerEvent.play);
+      final duration = videoPlayerController?.value.duration;
+      if (seekToLive && duration != null) seekTo(duration);
     }
   }
 
@@ -1122,14 +1122,16 @@ class BetterPlayerController {
   ///state, then video playback will stop. If showNotification is set in data
   ///source or handleLifecycle is false then this logic will be ignored.
   void setAppLifecycleState(AppLifecycleState appLifecycleState) {
+    _appLifecycleState = appLifecycleState;
+
     if (_isAutomaticPlayPauseHandled()) {
-      _appLifecycleState = appLifecycleState;
       if (appLifecycleState == AppLifecycleState.resumed) {
         if (_wasPlayingBeforePause == true && _isPlayerVisible) {
-          play();
+          play(seekToLive: isLiveStream());
         }
       }
       if (appLifecycleState == AppLifecycleState.paused) {
+        if (videoPlayerController?.value.isPip ?? false) return;
         _wasPlayingBeforePause ??= isPlaying();
         pause();
       }
@@ -1399,11 +1401,13 @@ class BetterPlayerController {
   ///Dispose BetterPlayerController. When [forceDispose] parameter is true, then
   ///autoDispose parameter will be overridden and controller will be disposed
   ///(if it wasn't disposed before).
+  @mustCallSuper
   void dispose({bool forceDispose = false}) {
     if (!betterPlayerConfiguration.autoDispose && !forceDispose) {
       return;
     }
     if (!_disposed) {
+      beforePlayerTearDown();
       if (videoPlayerController != null) {
         pause();
         videoPlayerController!.removeListener(_onFullScreenStateChanged);
@@ -1421,5 +1425,9 @@ class BetterPlayerController {
       ///Delete files async
       _tempFiles.forEach((file) => file.delete());
     }
+  }
+
+  void beforePlayerTearDown() {
+    // do nothing, override
   }
 }
