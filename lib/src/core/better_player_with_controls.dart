@@ -106,9 +106,7 @@ class _BetterPlayerWithControlsState extends State<BetterPlayerWithControls> {
             aspectRatio: aspectRatio,
             child: _buildPlayerWithControls(betterPlayerController, context),
           ),
-          if (betterPlayerController.isPip &&
-              !betterPlayerController.isFullScreen &&
-              Platform.isIOS)
+          if (betterPlayerController.isPip && Platform.isIOS)
             Positioned(
               child: Container(
                 color: Colors.black,

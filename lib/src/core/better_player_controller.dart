@@ -585,7 +585,8 @@ class BetterPlayerController {
         enterFullScreen();
       }
       if (_isAutomaticPlayPauseHandled()) {
-        if (_appLifecycleState == AppLifecycleState.resumed && _isPlayerVisible) {
+        if (_appLifecycleState == AppLifecycleState.resumed &&
+            _isPlayerVisible) {
           await play();
         } else {
           _wasPlayingBeforePause = true;
@@ -1190,12 +1191,11 @@ class BetterPlayerController {
 
     if (isPipSupported && canEnablePictureInPicture) {
       _isPip = true;
-      if (Platform.isIOS) exitFullScreen();
+      exitFullScreen();
       _wasInFullScreenBeforePiP = _isFullScreen;
       _wasControlsEnabledBeforePiP = _controlsEnabled;
       setControlsEnabled(false);
       if (Platform.isAndroid) {
-        if (isFullScreen) exitFullScreen();
         _wasInFullScreenBeforePiP = _isFullScreen;
         await videoPlayerController?.enablePictureInPicture(
             left: 0, top: 0, width: 0, height: 0);
